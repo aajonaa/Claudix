@@ -661,6 +661,11 @@ function handleSubmit() {
   if (textareaRef.value) {
     textareaRef.value.textContent = ''
   }
+
+  // 等待 DOM 更新后重置输入框高度
+  nextTick(() => {
+    autoResizeTextarea()
+  })
 }
 
 function handleStop() {
