@@ -17,24 +17,35 @@
     <template #content="{ close }">
       <DropdownItem
         :item="{
+          id: 'claude-opus-4-5',
+          label: 'Opus 4.5',
+          checked: selectedModel === 'claude-opus-4-5',
+          type: 'model'
+        }"
+        :is-selected="selectedModel === 'claude-opus-4-5'"
+        :index="0"
+        @click="(item) => handleModelSelect(item, close)"
+      />
+      <DropdownItem
+        :item="{
           id: 'claude-sonnet-4-5',
           label: 'Sonnet 4.5',
           checked: selectedModel === 'claude-sonnet-4-5',
           type: 'model'
         }"
         :is-selected="selectedModel === 'claude-sonnet-4-5'"
-        :index="0"
+        :index="1"
         @click="(item) => handleModelSelect(item, close)"
       />
       <DropdownItem
         :item="{
-          id: 'claude-opus-4-1',
-          label: 'Opus 4.1',
-          checked: selectedModel === 'claude-opus-4-1',
+          id: 'claude-haiku-4-5',
+          label: 'Haiku 4.5',
+          checked: selectedModel === 'claude-haiku-4-5',
           type: 'model'
         }"
-        :is-selected="selectedModel === 'claude-opus-4-1'"
-        :index="1"
+        :is-selected="selectedModel === 'claude-haiku-4-5'"
+        :index="2"
         @click="(item) => handleModelSelect(item, close)"
       />
     </template>
@@ -54,7 +65,7 @@ interface Emits {
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  selectedModel: 'claude-sonnet-4-5'
+  selectedModel: 'claude-opus-4-5'
 })
 
 const emit = defineEmits<Emits>()
@@ -62,12 +73,14 @@ const emit = defineEmits<Emits>()
 // 计算显示的模型名称
 const selectedModelLabel = computed(() => {
   switch (props.selectedModel) {
+    case 'claude-opus-4-5':
+      return 'Opus 4.5'
     case 'claude-sonnet-4-5':
       return 'Sonnet 4.5'
-    case 'claude-opus-4-1':
-      return 'Opus 4.1'
+    case 'claude-haiku-4-5':
+      return 'Haiku 4.5'
     default:
-      return 'Sonnet 4.5'
+      return 'Opus 4.5'
   }
 })
 

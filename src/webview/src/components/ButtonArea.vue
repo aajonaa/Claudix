@@ -206,7 +206,7 @@ interface Emits {
 const props = withDefaults(defineProps<Props>(), {
   disabled: false,
   loading: false,
-  selectedModel: 'claude-sonnet-4-5',
+  selectedModel: 'claude-opus-4-5',
   conversationWorking: false,
   hasInputContent: false,
   showProgress: true,

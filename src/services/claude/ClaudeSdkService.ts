@@ -109,7 +109,7 @@ export class ClaudeSdkService implements IClaudeSdkService {
         this.logService.info(`  - maxThinkingTokens: ${maxThinkingTokens ?? 'undefined'}`);
 
         // 参数转换
-        const modelParam = model === null ? "claude-sonnet-4-5" : model;
+        const modelParam = model === null ? "default" : model;
         const permissionModeParam = permissionMode as PermissionMode;
         const cwdParam = cwd;
 
