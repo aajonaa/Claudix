@@ -276,19 +276,24 @@ export class ClaudeSdkService implements IClaudeSdkService {
 
     /**
      * 获取环境变量
+     * 注意：Claude CLI 的 env 设置已通过 settingSources: ['user'] 由 SDK 自动加载
+     * 这里只处理 VSCode 特定的环境变量覆盖
      */
     private getEnvironmentVariables(): Record<string, string> {
+        // 系统环境变量（SDK 会通过 settingSources 自动加载 ~/.claude/settings.json 的 env）
+        const env: Record<string, string> = { ...process.env } as Record<string, string>;
+
+        // VSCode 设置覆盖（仅用于用户需要在 VSCode 中覆盖特定变量的情况）
         const config = vscode.workspace.getConfiguration("claudix");
         const customVars = config.get<Array<{ name: string; value: string }>>("environmentVariables", []);
-
-        const env = { ...process.env };
         for (const item of customVars) {
             if (item.name) {
                 env[item.name] = item.value || "";
+                this.logService.info(`[ClaudeSdkService] VSCode 设置覆盖环境变量: ${item.name}`);
             }
         }
 
-        return env as Record<string, string>;
+        return env;
     }
 
     /**

@@ -85,7 +85,7 @@ export async function handleInit(
     const openNewInTab = false;
 
     // 获取 thinking level (默认值)
-    const thinkingLevel = 'default_on';
+    const thinkingLevel = getDefaultThinkingLevel(configService);
 
     return {
         type: "init_response",
@@ -98,6 +98,58 @@ export async function handleInit(
             thinkingLevel
         }
     };
+}
+
+function getDefaultThinkingLevel(configService: HandlerContext["configService"]): string {
+    // 1. 系统环境变量
+    const env = { ...(process.env as Record<string, string | undefined>) };
+
+    // 2. 从 ~/.claude/settings.json 读取 CLI 环境变量
+    try {
+        const claudeSettingsPath = path.join(os.homedir(), '.claude', 'settings.json');
+        if (fs.existsSync(claudeSettingsPath)) {
+            const content = fs.readFileSync(claudeSettingsPath, 'utf-8');
+            const settings = JSON.parse(content);
+            if (settings.env && typeof settings.env === 'object') {
+                for (const [key, value] of Object.entries(settings.env)) {
+                    env[key] = value as string;
+                }
+            }
+        }
+    } catch {
+        // 忽略读取错误
+    }
+
+    // 3. VSCode 设置覆盖
+    const customVars = configService.getValue<Array<{ name: string; value: string }>>(
+        "claudix.environmentVariables",
+        []
+    );
+    for (const item of customVars) {
+        if (item.name) {
+            env[item.name] = item.value ?? "";
+        }
+    }
+
+    const isTruthy = (value: string | undefined): boolean => {
+        if (!value) return false;
+        const normalized = value.trim().toLowerCase();
+        return normalized === "1" || normalized === "true" || normalized === "yes" || normalized === "on";
+    };
+
+    const usingNonFirstPartyProvider =
+        isTruthy(env.CLAUDE_CODE_USE_BEDROCK) ||
+        isTruthy(env.CLAUDE_CODE_USE_VERTEX) ||
+        isTruthy(env.CLAUDE_CODE_USE_FOUNDRY);
+
+    // 检查是否使用自定义 API 端点（非官方 Anthropic API）
+    const customBaseUrl = env.ANTHROPIC_BASE_URL;
+    const usingCustomApiEndpoint = customBaseUrl &&
+        !customBaseUrl.includes("anthropic.com") &&
+        !customBaseUrl.includes("api.claude.ai");
+
+    // 使用非官方提供商或自定义端点时，默认关闭 thinking（可能不支持）
+    return (usingNonFirstPartyProvider || usingCustomApiEndpoint) ? "off" : "default_on";
 }
 
 /**

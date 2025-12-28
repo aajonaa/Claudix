@@ -211,7 +211,7 @@ const props = withDefaults(defineProps<Props>(), {
   hasInputContent: false,
   showProgress: true,
   progressPercentage: 48.7,
-  thinkingLevel: 'default_on',
+  thinkingLevel: 'off',
   permissionMode: 'default'
 })
 
@@ -257,7 +257,7 @@ const fileCompletion = useCompletionDropdown({
 })
 
 
-const isThinkingOn = computed(() => props.thinkingLevel !== 'off')
+const isThinkingOn = computed(() => props.thinkingLevel === 'default_on')
 
 const submitVariant = computed(() => {
   // 对齐 React：busy 时始终显示停止按钮

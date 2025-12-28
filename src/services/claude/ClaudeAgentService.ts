@@ -216,7 +216,8 @@ export class ClaudeAgentService implements IClaudeAgentService {
     private handlerContext: HandlerContext;
 
     // Thinking Level 配置
-    private thinkingLevel: string = 'default_on';
+    // 默认关闭 thinking，以兼容不支持 extended thinking 的 API 端点
+    private thinkingLevel: string = 'off';
 
     constructor(
         @ILogService private readonly logService: ILogService,

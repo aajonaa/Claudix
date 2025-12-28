@@ -182,7 +182,7 @@ const props = withDefaults(defineProps<Props>(), {
   selectedModel: 'claude-opus-4-5',
   conversationWorking: false,
   attachments: () => [],
-  thinkingLevel: 'default_on',
+  thinkingLevel: 'off',
   permissionMode: 'default'
 })
 

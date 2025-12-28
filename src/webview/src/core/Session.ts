@@ -80,7 +80,7 @@ export class Session {
   readonly permissionMode = signal<PermissionMode>('default');
   readonly summary = signal<string | undefined>(undefined);
   readonly modelSelection = signal<string | undefined>(undefined);
-  readonly thinkingLevel = signal<string>('default_on');
+  readonly thinkingLevel = signal<string>('');
   readonly todos = signal<any[]>([]);
   readonly worktree = signal<{ name: string; path: string } | undefined>(undefined);
   readonly selection = signal<SelectionRange | undefined>(undefined);
@@ -260,7 +260,7 @@ export class Session {
     }
 
     if (!this.thinkingLevel()) {
-      this.thinkingLevel(connection.config()?.thinkingLevel || 'default_on');
+      this.thinkingLevel(connection.config()?.thinkingLevel || 'off');
     }
 
     const stream = connection.launchClaude(
