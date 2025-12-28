@@ -477,11 +477,41 @@ export interface RenameTabResponse {
  */
 export interface OpenConfigFileRequest {
     type: "open_config_file";
-    configType: string;
+    file: "settings.json" | "claude.json" | string;
 }
 
 export interface OpenConfigFileResponse {
     type: "open_config_file_response";
+}
+
+/**
+ * CC-Switch 集成 - 获取 CC-Switch 状态
+ */
+export interface GetCCSwitchStatusRequest {
+    type: "get_ccswitch_status";
+}
+
+export interface GetCCSwitchStatusResponse {
+    type: "get_ccswitch_status_response";
+    installed: boolean;
+    activeProvider: {
+        id: number;
+        name: string;
+        baseUrl?: string;
+    } | null;
+}
+
+/**
+ * CC-Switch 集成 - 打开 CC-Switch 应用
+ */
+export interface OpenCCSwitchRequest {
+    type: "open_ccswitch";
+}
+
+export interface OpenCCSwitchResponse {
+    type: "open_ccswitch_response";
+    success: boolean;
+    error?: string;
 }
 
 /**
@@ -618,7 +648,9 @@ export type WebViewRequest =
     // | LoginRequest
     // | SubmitOAuthCodeRequest
     | OpenConfigFileRequest
-    | OpenClaudeInTerminalRequest;
+    | OpenClaudeInTerminalRequest
+    | GetCCSwitchStatusRequest
+    | OpenCCSwitchRequest;
 
 /**
  * Extension → WebView 的所有响应类型
@@ -648,7 +680,9 @@ export type WebViewRequestResponse =
     // | LoginResponse
     // | SubmitOAuthCodeResponse
     | OpenConfigFileResponse
-    | OpenClaudeInTerminalResponse;
+    | OpenClaudeInTerminalResponse
+    | GetCCSwitchStatusResponse
+    | OpenCCSwitchResponse;
 
 /**
  * Extension → WebView 的所有请求类型

@@ -4,7 +4,14 @@
 
 import * as vscode from 'vscode';
 import { InstantiationServiceBuilder } from './di/instantiationServiceBuilder';
-import { registerServices, ILogService, IClaudeAgentService, IWebViewService } from './services/serviceRegistry';
+import {
+	registerServices,
+	ILogService,
+	IClaudeAgentService,
+	IWebViewService,
+	IFileWatcherService,
+	ICCSwitchService
+} from './services/serviceRegistry';
 import { VSCodeTransport } from './services/claude/transport/VSCodeTransport';
 
 /**
@@ -35,6 +42,8 @@ export function activate(context: vscode.ExtensionContext) {
 		const logService = accessor.get(ILogService);
 		const webViewService = accessor.get(IWebViewService);
 		const claudeAgentService = accessor.get(IClaudeAgentService);
+		const fileWatcherService = accessor.get(IFileWatcherService);
+		const ccSwitchService = accessor.get(ICCSwitchService);
 		const subscriptions = context.subscriptions;
 
 		// Register WebView View Provider
@@ -61,6 +70,32 @@ export function activate(context: vscode.ExtensionContext) {
 
 		// Start message loop
 		claudeAgentService.start();
+
+		// Setup CC-Switch integration: watch for config changes
+		if (ccSwitchService.isInstalled()) {
+			logService.info('✓ CC-Switch detected - enabling auto-reload on provider changes');
+
+			// Watch Claude settings file for changes
+			const settingsWatcher = fileWatcherService.watchClaudeSettings(async (event) => {
+				logService.info(`[CC-Switch] Claude settings ${event.changeType}: ${event.filePath}`);
+				logService.info('[CC-Switch] Reloading Claude Agent Service...');
+
+				// Show notification to user
+				vscode.window.showInformationMessage(
+					'Claude Code configuration changed. Active sessions will be closed.',
+					'OK'
+				);
+
+				// Reload the Claude Agent Service
+				await claudeAgentService.reload();
+
+				logService.info('[CC-Switch] Reload complete');
+			});
+
+			subscriptions.push(settingsWatcher);
+		} else {
+			logService.info('ℹ CC-Switch not installed - auto-reload disabled');
+		}
 
 		// Register disposables
 		context.subscriptions.push(webviewProvider);

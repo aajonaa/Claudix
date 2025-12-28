@@ -19,6 +19,10 @@ import { INotificationService, NotificationService } from './notificationService
 import { IDialogService, DialogService } from './dialogService';
 import { IWebViewService, WebViewService } from './webViewService';
 
+// CC-Switch integration services
+import { ICCSwitchService, CCSwitchService } from './ccSwitchService';
+import { IFileWatcherService, FileWatcherService } from './fileWatcherService';
+
 // Claude services
 import { IClaudeSdkService, ClaudeSdkService } from './claude/ClaudeSdkService';
 import { IClaudeSessionService, ClaudeSessionService } from './claude/ClaudeSessionService';
@@ -58,6 +62,10 @@ export function registerServices(
 	// WebView service
 	builder.define(IWebViewService, new SyncDescriptor(WebViewService, [context]));
 
+	// CC-Switch integration services
+	builder.define(ICCSwitchService, new SyncDescriptor(CCSwitchService));
+	builder.define(IFileWatcherService, new SyncDescriptor(FileWatcherService));
+
 	// Claude services
 	builder.define(IClaudeSdkService, new SyncDescriptor(ClaudeSdkService, [context]));
 	builder.define(IClaudeSessionService, new SyncDescriptor(ClaudeSessionService));
@@ -76,6 +84,8 @@ export {
 	INotificationService,
 	IDialogService,
 	IWebViewService,
+	ICCSwitchService,
+	IFileWatcherService,
 	IClaudeSdkService,
 	IClaudeSessionService,
 	IClaudeAgentService

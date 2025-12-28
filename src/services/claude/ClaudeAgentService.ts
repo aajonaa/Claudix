@@ -28,6 +28,8 @@ import { IClaudeSessionService } from './ClaudeSessionService';
 import { AsyncStream, ITransport } from './transport';
 import { HandlerContext } from './handlers/types';
 import { IWebViewService } from '../webViewService';
+import { ICCSwitchService } from '../ccSwitchService';
+import { IFileWatcherService } from '../fileWatcherService';
 
 // 消息类型导入
 import type {
@@ -71,6 +73,8 @@ import {
     handleOpenContent,
     handleOpenURL,
     handleOpenConfigFile,
+    handleGetCCSwitchStatus,
+    handleOpenCCSwitch,
     // handleOpenClaudeInTerminal,
     // handleGetAuthStatus,
     // handleLogin,
@@ -176,6 +180,11 @@ export interface IClaudeAgentService {
      * 关闭
      */
     shutdown(): Promise<void>;
+
+    /**
+     * 重新加载服务（用于配置变更后刷新）
+     */
+    reload(): Promise<void>;
 }
 
 // ============================================================================
@@ -219,7 +228,9 @@ export class ClaudeAgentService implements IClaudeAgentService {
         @ITabsAndEditorsService private readonly tabsAndEditorsService: ITabsAndEditorsService,
         @IClaudeSdkService private readonly sdkService: IClaudeSdkService,
         @IClaudeSessionService private readonly sessionService: IClaudeSessionService,
-        @IWebViewService private readonly webViewService: IWebViewService
+        @IWebViewService private readonly webViewService: IWebViewService,
+        @ICCSwitchService private readonly ccSwitchService: ICCSwitchService,
+        @IFileWatcherService private readonly fileWatcherService: IFileWatcherService
     ) {
         // 构建 Handler 上下文
         this.handlerContext = {
@@ -234,6 +245,8 @@ export class ClaudeAgentService implements IClaudeAgentService {
             sdkService: this.sdkService,
             agentService: this,  // 自身引用
             webViewService: this.webViewService,
+            ccSwitchService: this.ccSwitchService,
+            fileWatcherService: this.fileWatcherService,
         };
     }
 
@@ -704,6 +717,13 @@ export class ClaudeAgentService implements IClaudeAgentService {
             case "open_config_file":
                 return handleOpenConfigFile(request, this.handlerContext);
 
+            // CC-Switch integration
+            case "get_ccswitch_status":
+                return handleGetCCSwitchStatus(request, this.handlerContext);
+
+            case "open_ccswitch":
+                return handleOpenCCSwitch(request, this.handlerContext);
+
             // 会话管理
             case "list_sessions_request":
                 return handleListSessions(request, this.handlerContext);
@@ -825,6 +845,29 @@ export class ClaudeAgentService implements IClaudeAgentService {
     async shutdown(): Promise<void> {
         await this.closeAllChannels();
         this.fromClientStream.done();
+    }
+
+    /**
+     * 重新加载服务（用于配置变更后刷新）
+     * 关闭所有活动会话并通知用户需要重新启动
+     */
+    async reload(): Promise<void> {
+        this.logService.info('[ClaudeAgentService] 开始重新加载服务（配置已变更）');
+
+        // 关闭所有通道，并通知用户配置已变更
+        const channelIds = Array.from(this.channels.keys());
+
+        for (const channelId of channelIds) {
+            this.closeChannel(
+                channelId,
+                true,
+                'Configuration changed. Please start a new conversation to use the updated settings.'
+            );
+        }
+
+        this.channels.clear();
+
+        this.logService.info('[ClaudeAgentService] 服务重新加载完成');
     }
 
     // ========================================================================

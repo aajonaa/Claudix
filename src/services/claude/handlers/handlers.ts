@@ -58,6 +58,9 @@ import type {
 import type { HandlerContext } from './types';
 import type { PermissionMode, SDKUserMessage } from '@anthropic-ai/claude-agent-sdk';
 import { AsyncStream } from '../transport/AsyncStream';
+
+// CC-Switch handlers
+export { handleGetCCSwitchStatus, handleOpenCCSwitch } from './ccSwitchHandlers';
 /**
  * 初始化请求
  */
@@ -612,16 +615,16 @@ export async function handleOpenConfigFile(
     request: OpenConfigFileRequest,
     context: HandlerContext
 ): Promise<OpenConfigFileResponse> {
-    const { configType } = request;
+    const { file } = request;
 
     try {
         // VS Code 设置
-        if (configType === "vscode") {
+        if (file === "vscode") {
             await vscode.commands.executeCommand('workbench.action.openSettings', 'claudix');
         }
         // 用户配置文件
         else {
-            const configPath = getConfigFilePath(configType);
+            const configPath = getConfigFilePath(file);
             const uri = vscode.Uri.file(configPath);
             await vscode.window.showTextDocument(uri);
         }
