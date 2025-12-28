@@ -8,11 +8,30 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import * as os from 'os';
-import Database from 'better-sqlite3';
 import { createDecorator } from '../di/instantiation';
 import { ILogService } from './logService';
 
 export const ICCSwitchService = createDecorator<ICCSwitchService>('ccSwitchService');
+
+// Lazy import better-sqlite3
+let Database: any = null;
+
+/**
+ * Try to load better-sqlite3, return null if not available
+ */
+function loadDatabase(): any {
+	if (Database !== null) {
+		return Database;
+	}
+
+	try {
+		Database = require('better-sqlite3');
+		return Database;
+	} catch (error) {
+		// better-sqlite3 not available - CC-Switch integration disabled
+		return null;
+	}
+}
 
 /**
  * CC-Switch Provider Configuration
@@ -101,13 +120,19 @@ export class CCSwitchService implements ICCSwitchService {
 	 * Get all providers from cc-switch database
 	 */
 	getProviders(): CCSwitchProvider[] {
+		const DB = loadDatabase();
+		if (!DB) {
+			this.logService.warn('[CCSwitchService] better-sqlite3 not available');
+			return [];
+		}
+
 		if (!this.isInstalled()) {
 			this.logService.warn('[CCSwitchService] CC-Switch 未安装');
 			return [];
 		}
 
 		try {
-			const db = new Database(this.dbPath, { readonly: true });
+			const db = new DB(this.dbPath, { readonly: true });
 
 			try {
 				// Query providers table

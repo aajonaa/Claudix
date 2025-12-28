@@ -1,0 +1,6 @@
+onlyBuiltDependencies:
+  - '@vscode/vsce-sign'
+  - better-sqlite3
+  - core-js
+  - esbuild
+  - keytar
