@@ -246,11 +246,7 @@ onUnmounted(() => {
 
 .message-view .message-text {
   cursor: pointer;
-  background-color: color-mix(
-    in srgb,
-    var(--vscode-input-background) 60%,
-    transparent
-  );
+  background-color: var(--vscode-input-background);
   outline: none;
   border-radius: 6px;
   width: 100%;
@@ -267,8 +263,8 @@ onUnmounted(() => {
 .message-view .message-text:hover {
   background-color: color-mix(
     in srgb,
-    var(--vscode-input-background) 70%,
-    transparent
+    var(--vscode-input-background) 90%,
+    var(--vscode-focusBorder) 10%
   );
 }
 
