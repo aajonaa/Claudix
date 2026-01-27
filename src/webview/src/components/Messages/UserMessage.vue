@@ -218,11 +218,11 @@ onUnmounted(() => {
   width: 100%;
   background-color: color-mix(
     in srgb,
-    var(--vscode-sideBar-background) 60%,
-    transparent
+    #E07A2F 8%,
+    var(--vscode-sideBar-background) 92%
   );
   outline: none;
-  border: 1px solid #E07A2F;
+  border: 2px solid #E07A2F;
   border-radius: 6px;
   position: relative;
   transition: all 0.2s ease;
