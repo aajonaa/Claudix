@@ -222,7 +222,7 @@ onUnmounted(() => {
     transparent
   );
   outline: none;
-  border: 1px solid var(--vscode-editorWidget-border);
+  border: 1px solid #E07A2F;
   border-radius: 6px;
   position: relative;
   transition: all 0.2s ease;
